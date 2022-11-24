@@ -2,10 +2,26 @@
     @testable import MasterMindEngine
 
     final class MasterMindEngineTests: XCTestCase {
-        func testExample() {
-            // This is an example of a functional test case.
-            // Use XCTAssert and related functions to verify your tests produce the correct
-            // results.
-            XCTAssertEqual(MasterMindEngine().text, "Hello, World!")
+        
+        func test_initWithParams_Ok() {
+            let game = MasterMindEngine(rowSize: 5, moves: 7, colors: 5)
+            let settings = GameSettings(rowSize: 5, moves: 7, colors: 5)
+            
+            XCTAssertTrue(settings == game.gameSettings)
+        }
+        
+        func test_initWithParams_Bad() {
+            let game = MasterMindEngine(rowSize: 5, moves: 7, colors: 5)
+            let settings = GameSettings(rowSize: 4, moves: 8, colors: 6)
+            
+            XCTAssertTrue(settings != game.gameSettings)
+        }
+
+        func test_prepareGameSettings_and_initWithParams_Ok() {
+            let game = MasterMindEngine(rowSize: 5, moves: 7, colors: 5)
+            var settings = GameSettings()
+            settings.prepareGameSettings(rowSize: 5, moves: 7, colors: 5)
+            
+            XCTAssertTrue(settings == game.gameSettings)
         }
     }
