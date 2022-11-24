@@ -15,7 +15,7 @@ struct Item {
     
     static func getAvailableColors(forCount colors: Int) -> [UIColor] {
         var result: [UIColor] = []
-        for i in 0...colors {
+        for i in 0 ..< colors {
             result.append(ALL_AVAILABLE_COLORS[i])
         }
         return result
