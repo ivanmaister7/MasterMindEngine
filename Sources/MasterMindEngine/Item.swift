@@ -8,10 +8,16 @@
 import Foundation
 import UIKit
 
-struct Item {
+protocol Item {
+    static var ALL_AVAILABLE_COLORS: [ UIColor] { get }
+    var color: UIColor { get set}
+    static func getAvailableColors(forCount colors: Int) -> [UIColor]
+}
+
+struct ItemRequest: Item, Equatable {
     static let ALL_AVAILABLE_COLORS: [UIColor] = [.blue, .red, .yellow, .green, .brown, .cyan, .purple, .magenta, .orange, .gray]
-    
-    let color: UIColor
+
+    var color: UIColor
     
     static func getAvailableColors(forCount colors: Int) -> [UIColor] {
         var result: [UIColor] = []
@@ -19,5 +25,15 @@ struct Item {
             result.append(ALL_AVAILABLE_COLORS[i])
         }
         return result
+    }
+}
+
+struct ItemResponce: Item, Equatable {
+    static let ALL_AVAILABLE_COLORS: [UIColor] = [.black, .white]
+
+    var color: UIColor
+    
+    static func getAvailableColors(forCount colors: Int) -> [UIColor] {
+        ALL_AVAILABLE_COLORS
     }
 }

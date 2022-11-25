@@ -6,15 +6,27 @@
 //
 
 import Foundation
+import UIKit
 
-struct Row {
-    let items: [Item]
+protocol Row {
+    var items: [Item] { get set }
+}
+
+struct RowRequest: Row {
+    var items: [Item]
     
-    static func generate(for settings: GameSettings) -> Row {
-        // implement real generator
-        Row(items: [Item(color: .blue),
-                    Item(color: .red),
-                    Item(color: .green),
-                    Item(color: .blue)])
+    mutating func generate(for colors: [UIColor], rowSize: Int) {
+        items.removeAll()
+        for _ in 0 ..< rowSize {
+            items.append(ItemRequest(color: colors.randomElement() ?? .blue))
+        }
+    }
+}
+
+struct RowResponce: Row {
+    var items: [Item]
+    
+    mutating func proccesRowRequest(for request: RowRequest) {
+        // procces the move
     }
 }

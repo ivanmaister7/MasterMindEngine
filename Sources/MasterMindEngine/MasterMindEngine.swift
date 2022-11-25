@@ -1,27 +1,34 @@
 import Foundation
 
-public struct MasterMindEngine {
+public class MasterMindEngine {
+    var logger: GameLogger? = nil
     
     var rowsRequest: [Row] = []
     var rowsResponce: [Row] = []
-    var rowResult: Row = Row(items: [])
+    var rowResult: RowRequest = RowRequest(items: [])
+    var lastMoveDate = Date()
     var gameSettings = GameSettings()
     
-    init() { rowResult = Row.generate(for: gameSettings) }
+    init(rowSize: Int, moves: Int, colors: Int, duration: Double) {
+        gameSettings.prepareGameSettings(rowSize: rowSize, moves: moves, colors: colors, duration: duration)
+        rowResult.generate(for: gameSettings.availableColors,
+                           rowSize: gameSettings.rowSize)
+        logger = GameLogger(game: self)
+    }
     
-    init(rowSize: Int, moves: Int, colors: Int) {
-        gameSettings.prepareGameSettings(rowSize: rowSize, moves: moves, colors: colors)
-        rowResult = Row.generate(for: gameSettings)
+    convenience init() {
+        self.init(rowSize: 4, moves: 8, colors: 6, duration: 15.0)
     }
     
     // перезапуск
-    public mutating func resetGame() {
-        //log
+    public func resetGame() {
         rowsRequest.removeAll()
         rowsResponce.removeAll()
+        
+        logger?.log(action: .reset)
     }
     
-    // сдача гри(фиксується перемога компютера) + перезапуск
+    // сдача гри(фiксується перемога компютера) + перезапуск
     public func resignGame() {
         
     }
@@ -53,13 +60,18 @@ public struct MasterMindEngine {
         
     }
     
-    public func getGameLogs() /*-> responceType*/ {
+    public func getGameLogs() -> [GameLog] {
         // логувати:
-        // хід гравця, таймери, стан рядків(рядку),
+        // дія гравця, таймери , таймери до початку ходу і після, стан рядків(рядку),
+        logger?.gameLogs ?? []
     }
     
-    public func getPlayerState() /*-> responceType*/ {
-        
+    public func getPlayerState() -> PlayerState {
+        PlayerState(movesLeft: gameSettings.countMoves - rowsRequest.count,
+                    allTimeLeft: gameSettings.gameDuration - gameSettings.startDate.timeIntervalSince(Date()),
+                    currentMoveTime: lastMoveDate.timeIntervalSince(Date()),
+                    lastMove: rowsRequest.last,
+                    lastAnswer: rowsResponce.last)
     }
     
     public func getCurrentGameState() -> GameSettings {

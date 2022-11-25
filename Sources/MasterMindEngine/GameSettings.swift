@@ -12,13 +12,14 @@ public struct GameSettings: Equatable {
     
     var rowSize = 4
     var countMoves = 8
+    var gameDuration = 15.0
     var availableColors: [UIColor] = []
-    var timer: Timer = Timer()
+    var startDate = Date()
     
     init() { }
     
-    init(rowSize: Int, moves: Int, colors: Int) {
-        prepareGameSettings(rowSize: rowSize, moves: moves, colors: colors)
+    init(rowSize: Int, moves: Int, colors: Int, duration: Double) {
+        prepareGameSettings(rowSize: rowSize, moves: moves, colors: colors, duration: duration)
     }
     
     public static func == (lhs: GameSettings, rhs: GameSettings) -> Bool {
@@ -27,10 +28,11 @@ public struct GameSettings: Equatable {
         lhs.countMoves == rhs.countMoves
     }
     
-    public mutating func prepareGameSettings(rowSize: Int, moves: Int, colors: Int) {
+    public mutating func prepareGameSettings(rowSize: Int, moves: Int, colors: Int, duration: Double) {
         // implement checker for negative nums
         self.rowSize = rowSize
         self.countMoves = moves
-        self.availableColors = Item.getAvailableColors(forCount: colors)
+        self.gameDuration = duration
+        self.availableColors = ItemRequest.getAvailableColors(forCount: colors)
     }
 }
