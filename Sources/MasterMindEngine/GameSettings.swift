@@ -12,7 +12,7 @@ public struct GameSettings: Equatable {
     
     var rowSize = 4
     var countMoves = 8
-    var gameDuration = 15.0
+    var gameDuration = 15.0 * 60
     var availableColors: [UIColor] = []
     var startDate = Date()
     
@@ -32,7 +32,7 @@ public struct GameSettings: Equatable {
         // implement checker for negative nums
         self.rowSize = rowSize
         self.countMoves = moves
-        self.gameDuration = duration
+        self.gameDuration = duration * 60
         self.availableColors = ItemRequest.getAvailableColors(forCount: colors)
     }
 }

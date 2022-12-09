@@ -1,40 +1,53 @@
 import Foundation
+import UIKit
 
 public class MasterMindEngine {
     var logger: GameLogger? = nil
     
-    var rowsRequest: [Row] = []
-    var rowsResponce: [Row] = []
-    var rowResult: RowRequest = RowRequest(items: [])
+    var rowsRequest: [RowRequest] = []
+    var rowsResponce: [RowResponce] = []
+    var rowResult = RowRequest(items: [])
     var lastMoveDate = Date()
     var gameSettings = GameSettings()
     
-    init(rowSize: Int, moves: Int, colors: Int, duration: Double) {
+    public init(rowSize: Int, moves: Int, colors: Int, duration: Double) {
         gameSettings.prepareGameSettings(rowSize: rowSize, moves: moves, colors: colors, duration: duration)
-        rowResult.generate(for: gameSettings.availableColors,
-                           rowSize: gameSettings.rowSize)
+        rowResult.generate(for: gameSettings.availableColors, rowSize: gameSettings.rowSize)
         logger = GameLogger(game: self)
+        logger?.log(action: .start)
     }
     
-    convenience init() {
+    public convenience init() {
         self.init(rowSize: 4, moves: 8, colors: 6, duration: 15.0)
     }
     
     // перезапуск
     public func resetGame() {
+        logger?.log(action: .reset)
         rowsRequest.removeAll()
         rowsResponce.removeAll()
-        
-        logger?.log(action: .reset)
     }
     
     // сдача гри(фiксується перемога компютера) + перезапуск
     public func resignGame() {
-        
+        logger?.log(action: .computerWin)
+        logger?.log(action: .resign)
+        resetGame()
     }
     
-    public func nextMove(/*..*/) /*-> responceType*/ {
+    public func nextMove(for request: RowRequest) { /*-> responceType*/
+        let (hasWinner, _) = hasWinner()
         
+        if hasWinner {
+            logger?.log(action: .hasWinner)
+            return
+        }
+        
+        logger?.log(action: .move)
+        rowsRequest.append(request)
+        var responce = RowResponce(items: [], resultRow: rowResult)
+        responce.proccesRowRequest(for: request)
+        rowsResponce.append(responce)
     }
     
     // після завершення гри для аналізу(ходити не можна) або для real-time mode(ходити можна!)
@@ -52,12 +65,20 @@ public class MasterMindEngine {
         
     }
     
-    public func hasWinner() /*-> responceType*/ {
+    public func hasWinner() -> (Bool, PlayerType?) {
+        if rowsRequest.last == rowResult {
+            return (true, .player)
+        }
         
+        if rowsRequest.count == gameSettings.countMoves {
+            return (true, .computer)
+        }
+        
+        return (false, nil)
     }
     
-    public func getAvailableMoves() /*-> responceType*/ {
-        
+    public func getAvailableMoves() -> [UIColor] {
+       gameSettings.availableColors
     }
     
     public func getGameLogs() -> [GameLog] {
@@ -68,8 +89,8 @@ public class MasterMindEngine {
     
     public func getPlayerState() -> PlayerState {
         PlayerState(movesLeft: gameSettings.countMoves - rowsRequest.count,
-                    allTimeLeft: gameSettings.gameDuration - gameSettings.startDate.timeIntervalSince(Date()),
-                    currentMoveTime: lastMoveDate.timeIntervalSince(Date()),
+                    allTimeLeft: gameSettings.gameDuration - Date().timeIntervalSince(gameSettings.startDate),
+                    currentMoveTime: Date().timeIntervalSince(lastMoveDate),
                     lastMove: rowsRequest.last,
                     lastAnswer: rowsResponce.last)
     }

@@ -9,14 +9,14 @@ import Foundation
 
 struct GameLogger {
     var gameLogs: [GameLog] = []
-    var game: MasterMindEngine
+    var game: MasterMindEngine // IoC (inversion of control)
     
     mutating func log(action: UserAction) {
         gameLogs.append(GameLog(gameSettings: game.gameSettings,
                                 playerState: game.getPlayerState(),
-                                lastRequest: game.rowsRequest.last as? RowRequest,
-                                lastResponce: game.rowsResponce.last as? RowResponce,
-                                currentTime: game.gameSettings.startDate.timeIntervalSince(Date()),
+                                lastRequest: game.rowsRequest.last,
+                                lastResponce: game.rowsResponce.last,
+                                //currentTime: game.gameSettings.startDate.timeIntervalSince(Date()),
                                 action: action.rawValue))
     }
 }

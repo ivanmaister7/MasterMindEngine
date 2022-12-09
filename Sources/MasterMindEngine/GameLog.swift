@@ -12,7 +12,7 @@ public struct GameLog {
     var playerState: PlayerState
     var lastRequest: RowRequest?
     var lastResponce: RowResponce?
-    var currentTime: TimeInterval
+    //var currentTime: TimeInterval
     var action: String
 }
 
@@ -25,4 +25,5 @@ enum UserAction: String {
     case resign = "User Resign Game"
     case userWin = "User Win"
     case computerWin = "Computer Win"
+    case hasWinner = "Can't make action, because there is a winner"
 }
