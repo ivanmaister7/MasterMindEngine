@@ -8,8 +8,8 @@
 import Foundation
 
 public struct PlayerState {
-    var movesLeft = 0
-    var allTimeLeft = TimeInterval()
+    public private(set) var movesLeft = 0
+    public private(set) var allTimeLeft = TimeInterval()
     var currentMoveTime = TimeInterval()
     var lastMove: RowRequest?
     var lastAnswer: RowResponce?

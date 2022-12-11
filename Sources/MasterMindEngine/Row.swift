@@ -18,7 +18,7 @@ public struct RowRequest: Row {
         lhs.items.map{ $0.color } == rhs.items.map{ $0.color }
     }
     
-    var items: [Item]
+    public var items: [Item]
     
     public init(items: [Item]) {
         self.items = items
@@ -38,7 +38,7 @@ public struct RowResponce: Row {
         lhs.items.map{ $0.color } == rhs.items.map{ $0.color }
     }
     
-    var items: [Item]
+    public var items: [Item]
     var resultRow: RowRequest
     
     init(items: [Item], resultRow: RowRequest) {
@@ -46,7 +46,7 @@ public struct RowResponce: Row {
         self.resultRow = resultRow
     }
     
-    init(items: [Item]) {
+    public init(items: [Item]) {
         self.init(items: items, resultRow: RowRequest(items: []))
     }
     

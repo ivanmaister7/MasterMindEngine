@@ -34,5 +34,9 @@ public struct GameSettings: Equatable {
         self.countMoves = moves
         self.gameDuration = duration * 60
         self.availableColors = ItemRequest.getAvailableColors(forCount: colors)
+        self.startDate = Date()
     }
+    
+    public func getRowSize() -> Int { rowSize }
+    
 }

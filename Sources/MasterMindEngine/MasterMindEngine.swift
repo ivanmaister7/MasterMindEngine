@@ -26,6 +26,8 @@ public class MasterMindEngine {
         logger?.log(action: .reset)
         rowsRequest.removeAll()
         rowsResponce.removeAll()
+        rowResult.generate(for: gameSettings.availableColors, rowSize: gameSettings.rowSize)
+        gameSettings.prepareGameSettings(rowSize: gameSettings.rowSize, moves: gameSettings.countMoves, colors: gameSettings.availableColors.count, duration: gameSettings.gameDuration / 60)
     }
     
     // сдача гри(фiксується перемога компютера) + перезапуск
@@ -70,7 +72,7 @@ public class MasterMindEngine {
             return (true, .player)
         }
         
-        if rowsRequest.count == gameSettings.countMoves {
+        if rowsRequest.count == gameSettings.countMoves || getPlayerState().allTimeLeft < 1.0{
             return (true, .computer)
         }
         
@@ -95,7 +97,11 @@ public class MasterMindEngine {
                     lastAnswer: rowsResponce.last)
     }
     
-    public func getCurrentGameState() -> GameSettings {
+    public func getCurrentGameSettings() -> GameSettings {
         gameSettings
+    }
+    
+    public func getCurrentGameState() -> GameState {
+        GameState(requestRows: rowsRequest, responceRows: rowsResponce)
     }
 }
