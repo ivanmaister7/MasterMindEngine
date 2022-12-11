@@ -26,4 +26,5 @@ enum UserAction: String {
     case userWin = "User Win"
     case computerWin = "Computer Win"
     case hasWinner = "Can't make action, because there is a winner"
+    case clearMovesHistory = "Clear rollbacks moves in realtime mode"
 }

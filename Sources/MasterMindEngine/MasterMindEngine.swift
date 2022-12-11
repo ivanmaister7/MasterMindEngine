@@ -10,15 +10,18 @@ public class MasterMindEngine {
     var lastMoveDate = Date()
     var gameSettings = GameSettings()
     
-    public init(rowSize: Int, moves: Int, colors: Int, duration: Double) {
-        gameSettings.prepareGameSettings(rowSize: rowSize, moves: moves, colors: colors, duration: duration)
+    var removeRowsRequest: [RowRequest] = []
+    var removeRowsResponce: [RowResponce] = []
+    
+    public init(rowSize: Int, moves: Int, colors: Int, duration: Double, realtime: Bool) {
+        gameSettings.prepareGameSettings(rowSize: rowSize, moves: moves, colors: colors, duration: duration, realtimeMode: realtime)
         rowResult.generate(for: gameSettings.availableColors, rowSize: gameSettings.rowSize)
         logger = GameLogger(game: self)
         logger?.log(action: .start)
     }
     
     public convenience init() {
-        self.init(rowSize: 4, moves: 8, colors: 6, duration: 15.0)
+        self.init(rowSize: 4, moves: 8, colors: 6, duration: 15.0, realtime: false)
     }
     
     // перезапуск
@@ -26,8 +29,10 @@ public class MasterMindEngine {
         logger?.log(action: .reset)
         rowsRequest.removeAll()
         rowsResponce.removeAll()
+        removeRowsRequest.removeAll()
+        removeRowsResponce.removeAll()
         rowResult.generate(for: gameSettings.availableColors, rowSize: gameSettings.rowSize)
-        gameSettings.prepareGameSettings(rowSize: gameSettings.rowSize, moves: gameSettings.countMoves, colors: gameSettings.availableColors.count, duration: gameSettings.gameDuration / 60)
+        gameSettings.prepareGameSettings(rowSize: gameSettings.rowSize, moves: gameSettings.countMoves, colors: gameSettings.availableColors.count, duration: gameSettings.gameDuration / 60, realtimeMode: gameSettings.realtimeMode)
     }
     
     // сдача гри(фiксується перемога компютера) + перезапуск
@@ -45,6 +50,9 @@ public class MasterMindEngine {
             return
         }
         
+        logger?.log(action: .clearMovesHistory)
+        removeRowsRequest.removeAll()
+        removeRowsResponce.removeAll()
         logger?.log(action: .move)
         rowsRequest.append(request)
         var responce = RowResponce(items: [], resultRow: rowResult)
@@ -53,26 +61,45 @@ public class MasterMindEngine {
     }
     
     // після завершення гри для аналізу(ходити не можна) або для real-time mode(ходити можна!)
-    public func rollbackMove() /*-> responceType*/ {
-
+    public func rollbackMove() {
+        
+        let (isWinner,_) = hasWinner()
+        if !isWinner && !gameSettings.realtimeMode { return }
+        
+        logger?.log(action: .rollback)
+        
+        guard let elem = rowsRequest.popLast() else { return }
+        
+        removeRowsRequest.append(elem)
+        removeRowsResponce.append(rowsResponce.removeLast())
     }
     
     // після завершення гри для аналізу(ходити не можна) або для real-time mode(ходити можна!)
-    public func rollForwardMove() /*-> responceType*/ {
+    public func rollForwardMove() {
         
+        let (isWinner,_) = hasWinner()
+        if !isWinner && !gameSettings.realtimeMode { return }
+        
+        logger?.log(action: .rollforward)
+        
+        guard let elem = removeRowsRequest.popLast() else { return }
+        
+        rowsRequest.append(elem)
+        rowsResponce.append(removeRowsResponce.removeLast())
     }
     
     // немає таймеру і працюють відкатування вперед і назад для ходу
-    public func realtimeModeOn() {
-        
-    }
+//    public func realtimeModeOn() {
+//
+//    }
     
     public func hasWinner() -> (Bool, PlayerType?) {
-        if rowsRequest.last == rowResult {
+        if rowsRequest.last == rowResult || removeRowsRequest.first == rowResult {
             return (true, .player)
         }
         
-        if rowsRequest.count == gameSettings.countMoves || getPlayerState().allTimeLeft < 1.0{
+        if (rowsRequest.count + removeRowsRequest.count) == gameSettings.countMoves ||
+            (getPlayerState().allTimeLeft < 1.0 && !gameSettings.realtimeMode){
             return (true, .computer)
         }
         
@@ -91,7 +118,7 @@ public class MasterMindEngine {
     
     public func getPlayerState() -> PlayerState {
         PlayerState(movesLeft: gameSettings.countMoves - rowsRequest.count,
-                    allTimeLeft: gameSettings.gameDuration - Date().timeIntervalSince(gameSettings.startDate),
+                    allTimeLeft: gameSettings.realtimeMode ? 0 : gameSettings.gameDuration - Date().timeIntervalSince(gameSettings.startDate),
                     currentMoveTime: Date().timeIntervalSince(lastMoveDate),
                     lastMove: rowsRequest.last,
                     lastAnswer: rowsResponce.last)
@@ -102,6 +129,6 @@ public class MasterMindEngine {
     }
     
     public func getCurrentGameState() -> GameState {
-        GameState(requestRows: rowsRequest, responceRows: rowsResponce)
+        return GameState(requestRows: rowsRequest, responceRows: rowsResponce)
     }
 }
